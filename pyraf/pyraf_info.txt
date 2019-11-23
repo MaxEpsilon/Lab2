@@ -1,0 +1,96 @@
+
+The following commands were used to create average reference star and nebula images.
+-> imcombine *f.f* avgnebula.fits combine=median
+-> imcombine *ref* avg_ref_star.fits combine=median
+The commands simply median combine images with f.f or ref in their name and outputs the result to averagenebula.fits/average_ref_star.fits
+
+We used the following command to apply the normalized flat field to the science images:
+-> imarith avgnebula.fits/finalnomalizedflat.fits averagenebula.fits
+-> imarith avg_ref_star.fits/finalnomalizedflat.fits average_ref_star.fits
+The command simply divides the stated file by finalnomalizedflat.fits
+
+
+
+Spectra extraction was done using the command:
+-> apall averagenebula.fits line=733
+	Find apertures for averagenebula? (’yes’): yes
+	Number of apertures to be found automatically (1): 1
+	Resize apertures for averagenebula? (’yes’): yes
+	Edit apertures for averagenebula? (’yes’): yes
+This brings up a plotting tool with counts on the y-axis and row# on the axis.
+Since the line was specifically chosen to include one of the bright emission lines it was easy to distinguish the emission lines and the background and both were selected.
+Once the emission lines and background were chosen PyRaf takes a column sum of every column in the row selected to contain emission lines and subtracts the background by taking an average of counts in rows selected to be the background.
+PyRaf then asks the following
+	Trace apertures for averagenebula? No
+Tracing means the same exact rows and backgrounds previously indicated would be used for all columns. For the average nebula image, we say no as the bound of the emission lines changes depending on the line strength.
+After saying no PyRaf then automatically attempts to fit new bounds for background and emission lines in every column. For our reference star we say yes as the star has a well defined spectrum throughout.
+For both images we say the following.
+	Write apertures for averagenebula to database? yes
+	Extract aperture spectra for averagenebula? yes
+	Review extracted spectra from averagenebula? yes
+	Review extracted spectrum for aperture 1 from averagenebula? yes
+This saves the indicated emission lines/background to a database and shows the resulting extracted spectrum. The outputted file is called averagenebula.ms.fits
+This same process was done with average_ref_star.fits but with traced apertures. The resulting file is average_ref_star.ms.fits
+
+From now on to plot x-pixel position/wavelength vs counts/flux(whichever units is stored in the database) we use the following command:
+-> splot filename
+
+
+Wavelength Calibration:
+Wavelength calibration was first done with the command
+-> identify average_ref_star.ms.fits
+This brings up a plot of x-pixel position vs counts
+We then directly on the plot tell PyRaf which pixel position correponds to what wavelength (in angstroms). This was done for all 8 lines. PyRaf then outputs and applies a wavelength calibration function to the image.
+When this fits file is plotted using the splot command, we can now see wavelength on the x-axis.
+The file is then renamed wavecalnebula.fits
+
+In order to apply this calibration we first edit the header of the image we intend to apply the wavelength calibration to. In this case the reference star.
+-> hedit average_ref_star.ms.fits REFSPEC1 "wavecalnebula.fits" add=yes
+We edit the header since the following command dispcor uses the keyword REFSPEC1 at a guide to determine where to find the wavelength calibration.
+-> dispcor average_ref_star.fits wavecalrefstar.fits
+This command applies the wavelength calibration found on wavecalnebula.fits and applies it to average_ref_star.fits then outputs it to wavecalrefstar.fits
+
+
+Flux Calibration
+After wavelength calibration is complete we start flux calibration was used the following command
+-> standard wavecalrefstar.fits blackbodyspec.dat caldir=onedstds$blackbody/ observatory=oro airmass=1.1 star name=V
+	Magnitude of star (): 2.48
+	Magnitude type (V|J|H|K|L|Lprime|M) (): V
+	Effective temperature or spectral type (): 9765
+	star.CF.ms.L.fits[1]: Edit bandpasses? (no|yes|NO|YES|NO!|YES!) (’yes’): no
+This uses the  Planck's blackbody function along with the indicated observing conditions to create a text file called 'stdspec' which contains the expected incoming flux from he star at various wavelengths within the range of the wavelength calibration.
+To create and fine tune our sensitivity function we use the following command
+-> sensfunc blackbodyspec.dat sfunc
+This brings up a polynomial fitting routine with data points taken from blackbodyspec.dat with the wavelength on the axis and flux in units of magnitude on the y-axis.
+This function is not a perfect yet because the hydrogen lines included in this range of the spectrum do not have emission lines causing large dips in the fit. To correct for this we remove the data points corresponding to these emission lines and refit with the remaining data points.
+Once fitting is complete this gives us our sensitivity function sfunc.fits
+To apply our sensitivity function to the nebula image we use the following command
+-> calibrate wavecalnebula.fits fluxcalnebula.fits sensitivity="sfunc" extinct=no
+This outputs our final flux calibrated spectrum called fluxcalnebula.fits
+
+Now to measure the line strengths from fluxcalnebula.fits we first plot the spectrum
+-> splot fluxcalnebula.fits
+Now in this plot we select left and right bound of the line we intend to measure where these bound are simply the background immediately to the left and right of the line. 
+PyRaf then integrates over the selected bounds and states the calculated flux.
+Each of the ArIV and OIII lines were measured 5 times with vrey slightly different bounds selected to determine the uncertainty in our measurements.
+Each individual measurement for the lines was manually recorded and can be found in fluxcaldata.dat
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

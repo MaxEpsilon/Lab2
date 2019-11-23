@@ -1,0 +1,49 @@
+O3-1:Wavelength=4363 Angstroms
+Fluxes:	7.30*10^-12
+	6.91*10^-12
+	6.66*10^-12
+	6.77*10^-12
+	7.03*10^-12
+AvgFlux:6.934*10^-12	
+
+O3-2:Wavelength=4959 Angstroms	
+Fluxes:	2.22*10^-10
+	2.21*10^-10
+	2.21*10^-10
+	2.22*10^-10
+	2.22*10^-10
+AvgFlux:2.216*10^-10
+
+O3-3:Wavelength=5007 Angstroms
+Fluxes:	6.76*10^-10
+	6.78*10^-10
+	6.76*10^-10
+	6.78*10^-10
+	6.77*10^-10
+AvgFlux:6.770*10^-10	
+
+Ratio of O-3 Lines = 129.59 +/-1.87
+Using this ratio in Eq 1 of lab manual we obtain T= 11743 +/- 95
+Literature value for T=12800
+Ar4-1:Wavelength=4711 Angstroms
+Fluxes:	3.38*10^-12
+	3.47*10^-12
+	3.12*10^-12
+	3.18*10^-12
+	3.26*10^-12
+AvgFlux:3.282*10^-12
+Ar4-2:Wavelength=4740 Angstroms
+Fluxes: 3.04*10^-12
+	3.13*10^-12
+	3.13*10^-12
+	3.14*10^-12
+	3.11*10^-12
+AvgFlux:3.110*10^-12 
+
+Ratio of Ar4 lines:1.060 +/- 0.021
+Using the figure of Ar4 ratio vs number density we get number density of electrons = 2800 +/- 200
+Literature value for number density = 3000
+
+
+
+
